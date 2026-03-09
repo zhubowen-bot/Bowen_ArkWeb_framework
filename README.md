@@ -1,8 +1,8 @@
-## BowenAPP-Web框架 正式版v1.0
+## Bowen_ArkWeb框架 正式版v1.0
 
 **这是一个基于ArkWeb深度开发的html嵌入式鸿蒙软件框架，即使你没有学过编程，你也可以零基础零编程构建自己的鸿蒙应用**  
 
-目前，BowenAPP-Web框架已经实现的功能有：  
+目前，Bowen_ArkWeb框架已经实现的功能有：  
 
 * 网页web/本地web自由嵌入；    
 * 底部安全区（小横条附近）沉浸式效果适配；    
@@ -37,6 +37,7 @@
 
 ## 致谢
 
-* B站UP主[零炻] -开源仓库https://github.com/littlestone0806/WebApp-ohos，本项目基于这份初始代码深度优化开发而成
+* B站UP主[零炻] -开源仓库https://github.com/littlestone0806/WebApp-ohos
+* 本项目基于这份初始代码深度优化开发而成
 
 
