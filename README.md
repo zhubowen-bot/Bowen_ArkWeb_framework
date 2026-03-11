@@ -38,7 +38,9 @@
 ## 网页元素避让安全区适配
 
 * Web组件启用沉浸式效果时，渲染内容可能与非安全区域重叠，影响用户的阅读和交互。非安全区域包括顶部状态栏、屏幕挖孔区和底部导航条。在沉浸式效果下，网页的标题栏被屏幕挖孔区遮挡，底部的Tab区域与导航条发生重叠。
+
 * 网页开发者可利用env(safe-area-inset-*)定义CSS样式，确保文字、图片和交互组件避让非安全区域。在以下示例中，通过env(safe-area-inset-*)更新了index.html的CSS样式，使网页主要内容避让非安全区域：
+
 * .title-bar {
   
       align-items: center;
@@ -61,15 +63,12 @@
       height: calc(env(safe-area-inset-bottom) + 40px); /* 增加tab区域高度以避让下方非安全区域 */
   
   }
+
 * 具体内容见开发文档：[文档中心](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/web-safe-area-insets)
 
 ## 致谢
 
 <<<<<<< Updated upstream
-* B站UP主[零炻] -开源仓库https://github.com/littlestone0806/WebApp-ohos
+
+* B站UP主[零炻] -开源仓库 https://github.com/littlestone0806/WebApp-ohos
 * 本项目基于这份初始代码深度优化开发而成
-
-
-=======
-* B站UP主[零炻] -开源仓库https://github.com/littlestone0806/WebApp-ohos，本项目基于这份初始代码深度优化开发而成
->>>>>>> Stashed changes
