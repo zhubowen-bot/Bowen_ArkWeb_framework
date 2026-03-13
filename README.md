@@ -41,7 +41,7 @@
 
 * 网页开发者可利用env(safe-area-inset-*)定义CSS样式，确保文字、图片和交互组件避让非安全区域。在以下示例中，通过env(safe-area-inset-*)更新了index.html的CSS样式，使网页主要内容避让非安全区域：
 
-* .title-bar {
+* `.title-bar {`
   
       align-items: center;
       justify-content: center;
@@ -49,22 +49,36 @@
       height: 40px;
       padding-top: env(safe-area-inset-top); /* 设置padding-top避让上方非安全区域 */
   
-  }
-  .content {
+  `}
+  .content {`
   
       margin: 8px;
       padding-top: calc(env(safe-area-inset-top) + 40px); /* 同步title-bar增加padding-top高度 */
   
-  }
-  .tabs {
+  `}
+  .tabs {`
   
       justify-content: space-around;
       bottom: 0;
       height: calc(env(safe-area-inset-bottom) + 40px); /* 增加tab区域高度以避让下方非安全区域 */
   
-  }
+  `}`
 
 * 具体内容见开发文档：[文档中心](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/web-safe-area-insets)
+
+## 关于不支持深色模式的web页面顶部状态栏适配
+
+目前顶部状态栏安全区背景延伸适配的工作尚未完成。如果你的web不支持深色模式，在开启深色模式状态下顶部状态栏会呈现黑色，影响视觉观感。这时，你只需要在index.ets文件的最后几行代码：
+
+`.width('100%')`
+
+`.height('100%')`
+
+后添加一行：
+
+`.background('#F0F4F8')`
+
+即可
 
 ## 致谢
 
