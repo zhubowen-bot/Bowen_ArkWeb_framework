@@ -20,6 +20,7 @@ import { call } from '@kit.TelephonyKit';  // 新增：用于拨打电话
 //const url = "https://www.iconfont.cn";  //阿里巴巴矢量图库
 const url = "https://chat.qwen.ai";
 //const url = $rawfile('index.html')
+//const url = "https://www.doubao.com/chat/";
 
 // UA设置（修改为更精准的移动端标识）
 const forceMobileUA = false;  // 强制手机UA开关设置为true
@@ -459,7 +460,7 @@ struct WebComponent {
 
             // 判断是否为移动设备：phone或wearable
             const isMobileDevice = deviceType === 'phone' || deviceType === 'wearable';
-            
+
             // 判断是否为小屏设备（竖屏且宽度小于600px）
             const isSmallScreen = !isLandscape && screenWidth < 600;
 
@@ -570,5 +571,6 @@ struct WebComponent {
     }
     .width('100%')
     .height('100%')
+    .background('#F0F4F8')
   }
 }
