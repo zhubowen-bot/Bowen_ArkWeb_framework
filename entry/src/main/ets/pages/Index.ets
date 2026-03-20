@@ -1,4 +1,4 @@
-//这个框架是github上载框架
+//这个框架是github框架上载框架
 
 import { webview } from '@kit.ArkWeb';
 import { BusinessError, pasteboard, deviceInfo } from '@kit.BasicServicesKit';
@@ -23,6 +23,7 @@ import { call } from '@kit.TelephonyKit';  // 新增：用于拨打电话
 const url = "https://chat.qwen.ai";
 //const url = $rawfile('index.html')
 //const url = "https://oc.sjtu.edu.cn";
+//const url = "https://shuiyuan.sjtu.edu.cn";
 
 // UA设置（修改为更精准的移动端标识）
 const forceMobileUA = false;  // 强制手机UA开关设置为true
@@ -322,7 +323,7 @@ struct WebComponent {
             this.window_height = properties.windowRect.height - titleBlankHeight;
           });
         })
-        // ==================== 新增：处理 mailto/tel/sms 链接 ====================
+        // ==================== 新增：处理url scheme跳转外部应用 ====================
         .onLoadIntercept((event) => {
           if (event) {
             let requestUrl: string = event.data.getRequestUrl();
@@ -390,7 +391,6 @@ struct WebComponent {
             }
 
             // 处理 jaccount: 链接 - 拉起交我办APP
-            //这是一个拉起私有协议的标准范例。在module.json5中声明如果没有成功运行，可以采用这种拦截方式
             if (requestUrl.indexOf('jaccount:') === 0) {
               let context = this.getUIContext().getHostContext() as common.UIAbilityContext;
               let want: Want = {
@@ -406,10 +406,44 @@ struct WebComponent {
               });
               return true;
             }
+
+            // 处理 weixin: 链接 - 拉起微信打开
+            if (requestUrl.indexOf('weixin://') === 0) {
+              let context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+              let want: Want = {
+                bundleName: 'com.tencent.wechat',
+                action: 'ohos.want.action.viewData',
+                uri: requestUrl
+              };
+              context.startAbility(want).then((data) => {
+                console.info(`拉起微信成功: ${JSON.stringify(data)}`);
+              }).catch((err: BusinessError) => {
+                console.error(`拉起微信失败: ${err.code}, ${err.message}`);
+                promptAction.showToast({ message: '未安装微信，请先安装' });
+              });
+              return true;
+            }
+
+            // 处理 xhsdiscover: 链接 - 拉起小红书打开
+            if (requestUrl.indexOf('xhsdiscover://') === 0) {
+              let context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+              let want: Want = {
+                bundleName: 'com.xingin.xhs_hos',
+                action: 'ohos.want.action.viewData',
+                uri: requestUrl
+              };
+              context.startAbility(want).then((data) => {
+                console.info(`拉起小红书成功: ${JSON.stringify(data)}`);
+              }).catch((err: BusinessError) => {
+                console.error(`拉起小红书失败: ${err.code}, ${err.message}`);
+                promptAction.showToast({ message: '未安装小红书，请先安装' });
+              });
+              return true;
+            }
           }
           return false;  // 不拦截其他请求，正常加载
         })
-        // ==================== mailto/tel/sms 处理结束 ====================
+        // ====================处理url scheme跳转外部应用 处理结束 ====================
         .onContextMenuShow((event) => {
           if (event) {
             this.result = event.result;

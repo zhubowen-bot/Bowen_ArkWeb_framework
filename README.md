@@ -9,7 +9,8 @@
 * 鸿蒙安全访问文件控件；鸿蒙安全访问相机控件；鸿蒙安全保存控件； 
 * 扩展右键菜单，包括图片右键下载菜单、复制链接等
 * 下载监听和下载框适配，支持安全保存文件
-* 支持mailto等协议，支持跳转系统邮箱、电话；支持跳转豆包等部分APP；支持跳转应用系统权限页；   
+* 支持自由而简单地添加url schame协议，已经demo包含的有maito邮箱、tel电话、sms短信、weixin微信、xhsdiscover小红书、jaccount上交大交我办应用跳转。
+* 支持跳转应用对应的系统权限页；   
 * 系统相机和麦克风权限申请，网页获取系统相机和麦克风权限，采用二次权限申请以保护安全；  
 * 获取系统网络状态，并反馈给网页；    
 * 深色、浅色模式获取，并反馈给网页；   
@@ -83,17 +84,29 @@
 
 ## 关于web组件自定义协议跳转（url scheme）
 
-鸿蒙系统web组件原生支持https格式以及部分主流应用的部分功能（如微信等）跳转。
+本方案优于官方文档所提供的方案，具有可复用性、易移植性，无需额外的申请开通app linking，或者在module.json中输入值，只需要有url scheme 的前缀和对应app的包名即可。
 
-有时，你会发现有些跳转链接打开后为白屏或黑屏，这是因为该跳转协议未适配。
+【官方提供的方案】
 
-在源代码中，已经开发了处理 mailto/tel/sms（邮箱，电话，短信） 链接的部分。
+鸿蒙系统web组件原生采用了APP linking的跳转方式，如豆包，无需做任何适配就可以自动跳转至应用。
 
-如果要添加自定义协议跳转，需要做专门的适配。
+对于绝大多数跳转链接，很有可能打开后为白屏或黑屏，这是因为该跳转协议未适配app linking。
+
+官方的app linking方式，需要注册能力、添加关联名单等一系列操作，适配极为不方便。
+
+【我们提供的方案】
+
+但是由于绝大多数应用都支持浏览器所采用的通用url scheme的跳转方式，因此深度适配此方案将会使得跳转极为简便。
+
+在源代码中，已经开发了处理 maito 邮箱、tel 电话、sms 短信、weixin 微信、xhsdiscover 小红书、jaccount 上交大交我办APP 链接的部分。
+
+【适配步骤】
+
+1.获取url scheme的前缀
 
 这里，以上海交通大学交我办的`jaccount://login?uuid=xxx` 自定义协议拉起为例，
 
-用开发者工具分析移动端网站跳转交我办的代码，可以发现其网页采用URL Scheme
+用开发者工具-请求手机端 分析移动端网站跳转交我办的代码（可右键直接读取网页源代码，再上传给AI分析），可以发现其网页采用URL Scheme
 
 `function appLogin() {
     showTryAppLogin(5000);  // 显示等待界面，5秒超时
@@ -107,34 +120,21 @@
     return false;
 }`
 
-
+其前缀为 jaccount:  。
 
 下面是鸿蒙web框架的对应实现方式，代码已经给出demo，可以采用搜索工具查找位置，来更改demo代码
 
-在module.json5的abbility中，添加：
-`"uris": [  
-  {  
-    "scheme": "jaccount",  
-    "host": "login",  
-    "port": "80"  
-  }  
-]`
-
-如果无法正常跳转，还需要手动添加拦截
-
 在Index.ets中，在处理链接拦截的部分添加
 
-`// 处理 jaccount: 链接 - 拉起交我办APP`
+`// 处理 jaccount: 链接 - 拉起交我办APP
 
-`//这是一个拉起私有协议的标准范例。在module.json5中声明如果没有成功运行，可以采用这种拦截方式`
-
-`if (requestUrl.indexOf('jaccount:') === 0) {`
+`if (requestUrl.indexOf('jaccount:') === 0) {`                //这里填入前缀
 
 `let context = this.getUIContext().getHostContext() as common.UIAbilityContext;`
 
 `let want: Want = {`
 
-`bundleName: 'edu.sjtu.jwb',`
+`bundleName: 'edu.sjtu.jwb',`            //这里是应用包名，可以用开发者相关工具获取，获取包名的方法网上可以查询到
 
 `action: 'ohos.want.action.viewData',`
 
@@ -158,7 +158,7 @@
 
 `}`
 
-还可以参考以下官方文档
+官方文档的方案比本处复杂，不过也可以参考。
 
 [H5通过url scheme拉起应用-关键场景示例-公共关键技术方案 - 华为HarmonyOS开发者](https://developer.huawei.com/consumer/cn/doc/architecture-guides/app_pull_up-0000002353615821)
 
