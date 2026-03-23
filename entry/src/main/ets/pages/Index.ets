@@ -1,4 +1,4 @@
-//这个框架是github框架上载框架
+//这个框架是github框架的上载版本
 
 import { webview } from '@kit.ArkWeb';
 import { BusinessError, pasteboard, deviceInfo } from '@kit.BasicServicesKit';
@@ -21,7 +21,7 @@ import { call } from '@kit.TelephonyKit';  // 新增：用于拨打电话
 //const url = "https://chat.deepseek.com";  //deepseek
 //const url = "https://www.iconfont.cn";  //阿里巴巴矢量图库
 const url = "https://chat.qwen.ai";
-//const url = $rawfile('index.html')
+//const url = $rawfile('index (2).html')
 //const url = "https://oc.sjtu.edu.cn";
 //const url = "https://shuiyuan.sjtu.edu.cn";
 
@@ -308,6 +308,7 @@ struct WebComponent {
     })
   }
 
+  private isProcessingDoubao: boolean = false; // 新增：豆包链接处理状态
   private windowStage = AppStorage.get('window') as window.WindowStage;
 
   build() {
@@ -440,6 +441,23 @@ struct WebComponent {
               });
               return true;
             }
+
+            // 拦截豆包App Linking跳转（添加递归保护）
+            if (requestUrl.indexOf('https://www.doubao.com') === 0) {
+              // 检查是否已在加载此URL，避免递归
+              if (!this.isProcessingDoubao) {
+                this.isProcessingDoubao = true;
+                console.info(`拦截到豆包链接，在应用内加载: ${requestUrl}`);
+                this.controller.loadUrl(requestUrl);
+                // 设置超时重置状态，防止永久锁定
+                setTimeout(() => {
+                  this.isProcessingDoubao = false;
+                }, 3000);
+                return true;
+              } else {
+                console.warn('已跳过递归加载豆包链接');
+              }
+            }
           }
           return false;  // 不拦截其他请求，正常加载
         })
@@ -515,6 +533,9 @@ struct WebComponent {
             // 判断是否为移动设备：phone或wearable
             const isMobileDevice = deviceType === 'phone' || deviceType === 'wearable';
 
+            // 判断是否为平板设备
+            const isTabletDevice = deviceType === 'tablet';
+
             // 判断是否为小屏设备（竖屏且宽度小于600px）
             const isSmallScreen = !isLandscape && screenWidth < 600;
 
@@ -523,8 +544,9 @@ struct WebComponent {
             // 2. 手机/可穿戴设备 → 移动端UA（无论屏幕方向）
             // 3. 小屏竖屏设备 → 移动端UA
             // 4. 其他情况（平板/2in1横屏或大屏） → PC端UA
+            // 注：如果想让平板端显示移动端，那么在下方一行增加 || isTabletDevice 即可
             if (forceMobileUA || isMobileDevice || isSmallScreen) {
-              this.controller.setCustomUserAgent(mobileUserAgent );
+              this.controller.setCustomUserAgent(mobileUserAgent + " QwenApp/1.5");
               console.info('使用移动端UA');
             } else {
               this.controller.setCustomUserAgent(pcUserAgent);

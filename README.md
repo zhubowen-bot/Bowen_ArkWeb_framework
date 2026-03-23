@@ -86,6 +86,8 @@
 
 本方案优于官方文档所提供的方案，具有可复用性、易移植性，无需额外的申请开通app linking，或者在module.json中输入值，只需要有url scheme 的前缀和对应app的包名即可。
 
+相关内容在index.ets中搜索
+
 【官方提供的方案】
 
 鸿蒙系统web组件原生采用了APP linking的跳转方式，如豆包，无需做任何适配就可以自动跳转至应用。
@@ -165,6 +167,102 @@
 官方文档的方案比本处复杂，不过也可以参考。
 
 [H5通过url scheme拉起应用-关键场景示例-公共关键技术方案 - 华为HarmonyOS开发者](https://developer.huawei.com/consumer/cn/doc/architecture-guides/app_pull_up-0000002353615821)
+
+## 关于UA（user agent）的适配
+
+只需要更改适配逻辑即可，如下方，平板和大屏UA统一，如果想让平板显示为移动端，按下方添加即可。
+
+详见index.ets
+
+> `// UA设置逻辑：`
+> 
+> `// 1. 强制移动模式 → 移动端UA`
+> 
+> `// 2. 手机/可穿戴设备 → 移动端UA（无论屏幕方向）`
+> 
+> `// 3. 小屏竖屏设备 → 移动端UA`
+> 
+> `// 4. 其他情况（平板/2in1横屏或大屏） → PC端UA`
+> 
+> `// 注：如果想让平板端显示移动端，那么在下方一行增加 || isTabletDevice 即可`
+> 
+> `if (forceMobileUA || isMobileDevice || isSmallScreen) {`
+> 
+> `this.controller.setCustomUserAgent(mobileUserAgent );`
+> 
+> `this.controller.setCustomUserAgent(mobileUserAgent + " QwenApp/1.5");`
+> 
+> `console.info('使用移动端UA');`
+> 
+> `} else {`
+> 
+> `this.controller.setCustomUserAgent(pcUserAgent);`
+> 
+> `console.info('使用PC端UA');`
+> 
+> `}`
+
+注意：这里的设备请求没有添加Harmony OS设备，如果需要用到鸿蒙版应用商店和特有UA功能，请按照开发者联盟官网文档在开头的：
+
+> // UA设置（修改为更精准的移动端标识）
+> 
+> const forceMobileUA = false; // 强制手机UA开关设置为true
+> 
+> const mobileUserAgent = "Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"; // 增强移动端标识
+> 
+> const pcUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"; // 更新PC UA版本
+
+处添加openharmony相关内容
+
+## 关于拦截app linking 强制跳转
+
+> ArkWeb内核已完成对App Linking的自动适配，集成了ArkWeb内核的应用，在ArkWeb中访问目标应用的App Linking地址时，系统将在应用已安装时自动拉端，未安装时跳转到对应网页，ArkWeb的宿主应用无需特殊处理
+
+但是很有可能我们并不希望跳转应用，而app linking 又是深度集成的。官方文档给出以下解释 
+
+> 若开发者不希望触发App Linking应用跳转逻辑，而是在应用内以ArkWeb继续浏览，可以在onLoadIntercept()回调中拦截对应的App Linking地址，并手动通过loadUrl()的方式加载网页内容，需注意获取到的链接地址末尾会被自动添加“/”。
+
+代码实现在下面几个地方（以豆包为例）
+
+```
+private isProcessingDoubao: boolean = false; // 新增：豆包链接处理状态
+```
+
+> `// 拦截豆包App Linking跳转（添加递归保护）`
+> 
+> `if (requestUrl.indexOf('https://www.doubao.com') === 0) {`
+> 
+> `// 检查是否已在加载此URL，避免递归`
+> 
+> `if (!this.isProcessingDoubao) {`
+> 
+> `this.isProcessingDoubao = true;`
+> 
+> `console.info(拦截到豆包链接，在应用内加载: ${requestUrl});`
+> 
+> `this.controller.loadUrl(requestUrl);`
+> 
+> `// 设置超时重置状态，防止永久锁定`
+> 
+> `setTimeout(() => {`
+> 
+> `this.isProcessingDoubao = false;`
+> 
+> `}, 3000);`
+> 
+> `return true;`
+> 
+> `} else {`
+> 
+> `console.warn('已跳过递归加载豆包链接');`
+> 
+> `}`
+> 
+> `}`
+
+
+
+
 
 ## 致谢
 
